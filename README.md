@@ -6,7 +6,8 @@ Les quatre candidats doivent répondre rapidement à une série de questions, en
 Le candidat qui atteint le nombre maximum des points définit par l’administrateur de système, gagne le jeu.
 
 
-Ce projet est developpé a l'aide de NodeJS
+Back: NodeJS
+front: HTML, CSS
 
 
 Quelque screenshot du projet:
