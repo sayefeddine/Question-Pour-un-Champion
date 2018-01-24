@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <style>
+      #Main_UI {
+        display: none;
+      }
+
+      #LoadingBox {
+        display: none;
+      }
+
+    </style>
+
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  </head>
+  <body>
+
+  <center><img class="header" src="/images/header.png"></center>
+  <br> <br> <br><br> <br>
+
+  <div id="BoxDeLogin">
+    <h5 id="nickError"></h5>
+    <form id="SendPseudo">
+      <input class="inputFORM" type="text" size="26" id="pseudo" formmethod="post" placeholder="Entrer votre pseudo souhaité">
+      <br> <br> <br>
+      <input class="button" value="Commencer à jouer" type="submit">
+    </form>
+  </div>
+
+
+  <div id="LoadingBox">
+    <h5>Nous attendons que 4 utilisateurs se connectent</h5>
+    <center><img class="loadingIMG" src="/images/loading.gif"></center>
+  </div>
+
+
+
+
+<!--
+
+main
+
+-->
+    <div id="Main_UI">
+      <div>
+      <center> <label class="Pseudo" id="PseudoU">Pseudo User</label></center>
+      <p class="ScoreU">Score: <label id="ScoreU"> 0</label></p>
+      <p>
+        <span class="timer" id="timer"></span>
+      </p>
+      </div>
+
+
+
+      <p class="QuestionC">
+        Question: <label id="question_zone"> Get the question from the server </label>
+      </p>
+
+
+        <center><img src="http://www.icone-png.com/png/27/26799.png" onclick="javascript:lireq();" alt="Lire la question" style="cursor:pointer; width: 50px; height: 50px;" /></center>
+
+      </p>
+
+      <p>
+        <center><input class="inputFORM" placeholder="Entrer votre réponse" type="text" name="Resp"  size="30" maxlength="10"  id="answerU" disabled/></center>
+      </p>
+
+      <p>
+        <center><input class="BtnSubmit" id="BtnSubmit" type="submit" value="Envoyer reponse" onclick="SendResp()" disabled></center>
+      </p>
+
+
+
+        <centre><input class="buzzer" name="buzzer" id="buzzer" value="buzzer" type="submit" onclick="SendBuserTime()"/></centre>
+
+
+
+    </div>
+
+
+
+    <div id="winner" class="winner">
+
+      <img style="width=100%;height=100%;display: inline-block;" src="/images/win.gif">
+      <center><h1 style="color:black;">VOUS AVEZ GAGNÉ !!</h1></center>
+
+    </div>
+  <div id="lost" class="lost">
+
+    <img style="width=100%;height=100%;display: inline-block;" src="/images/lost.gif">
+    <center><h1 style="color:black;">VOUS AVEZ PERDU !!</h1></center>
+
+  </div>
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+    <script>
+        var socket = io();
+        var timerSet;
+        var NbQuestions=2;
+        var SoreMax=0;
+        var question;
+        jQuery(function ($) {
+
+            //--------------------------------
+
+            var $LoginBox=$('#BoxDeLogin');
+            var $LoadingBox=$('#LoadingBox');
+            var $PseudoForm= $('#SendPseudo');
+            var $PseudoValue= $('#pseudo');
+            var $nickform=$('#nickError');
+            var popup = document.getElementById("myPopup");
+            var BUZ=false;
+
+
+            var $qt=$('#Main_UI');
+
+
+
+
+            function MainI(){
+                $qt.show();
+                // set user pseudo
+                document.getElementById('PseudoU').innerHTML =$PseudoValue.val();
+                // bech tjni chaine de type 00:00 n7otha lena
+                // get the timer config from the server
+
+
+                var user_score=0;
+                var v=true;
+                // recieve the timer set
+                socket.on('time',function (m) {
+                    timerSet=m;
+
+
+                })
+
+                // recive the question
+                socket.on('Ques',function (q) {
+                    //document.getElementById('timer').innerHTML ="00:00";
+                    document.getElementById('question_zone').innerHTML=q;
+                    //block response and afficher buzzer
+                    document.getElementById('answerU').disabled=true;
+                    document.getElementById('BtnSubmit').disabled=true;
+                    $('#buzzer').show();
+                    clearTimeout(x);
+                    BUZ=false;
+                    document.getElementById('timer').innerHTML =timerSet;
+                    question=q;
+                })
+                // get max Score
+
+                socket.on('MS',function (m) {
+                    SoreMax=m;
+                })
+                // get number of questions
+                socket.on('NQ',function (m) {
+                    NbQuestions=m;
+                })
+
+
+            }
+         //Fonction qui vérifie que le pseudo choisis par l'utilisateur est unique
+            $PseudoForm.submit(function(e){
+                e.preventDefault();
+                socket.emit('ClientConnected',$PseudoValue.val(), function (data) {
+                    if(data) {
+                        $LoginBox.hide();
+                        $LoadingBox.show();
+                        socket.on('GoOn', function (hey) {
+                            if (hey)
+                            {
+                                $LoadingBox.hide();
+                                MainI();
+                            }
+                        });
+                    } else {
+                        $nickform.html('Pseudo déja pris,veuillez essayer de nouveau');
+                    }
+                });
+            });
+
+
+        });
+
+
+        var selectedUser;
+        function SendBuserTime(e) {
+
+            var time = new Date();
+            var timezz = time.getTime();
+            //alert(""+timezz.toString());
+            socket.emit('BuzzerClickedTe3',timezz,document.getElementById('PseudoU').innerHTML.toString());
+        }
+        socket.on('UserSelected',function (x) {
+
+            document.getElementById('timer').innerHTML =timerSet;
+            startTimer();
+
+            if(x.toString().localeCompare(document.getElementById('PseudoU').innerHTML.toString())){
+                    $('#buzzer').hide();
+
+            }else{
+                document.getElementById('answerU').disabled=false;
+                document.getElementById('BtnSubmit').disabled=false;
+                $('#buzzer').hide();
+                BUZ=true;
+                selectedUser=x;
+
+            }
+
+        })
+
+        socket.on('ScoreUP',function (p,s) {
+
+            if(!(p.toString().localeCompare(document.getElementById('PseudoU').innerHTML.toString()))){
+                document.getElementById('ScoreU').innerHTML =s;
+                console.log("score changed");
+            }else {
+                console.log("score not changed");
+           }
+        })
+
+
+        socket.on('FinJ',function (p) {
+            // hide main_ui and show winner div or loser div
+            if(!(p.toString().localeCompare(document.getElementById('PseudoU').innerHTML.toString()))){
+                // show winner div
+                $('#Main_UI').hide();
+                $('#winner').show();
+            }else{
+                // show looser
+                $('#Main_UI').hide();
+                $('#lost').show();
+
+            }
+
+        })
+
+        var x;
+       function startTimer() {
+            var presentTime = document.getElementById('timer').innerHTML;
+            var timeArray = presentTime.split(/[:]+/);
+            var m = timeArray[0];
+            var s = checkSecond((timeArray[1] - 1));
+
+
+            if(s==59){m=m-1}
+
+            if (m>=0){
+                document.getElementById('timer').innerHTML = m + ":" + s;
+                x = setTimeout(startTimer, 1000);
+            }
+            else {
+                document.getElementById('timer').innerHTML ="time out";
+               // popup.classList.toggle("show");
+
+                // send to server there's no reponse from any player
+                // tensech bech tbadel "verifferst = true"
+
+                socket.emit('NoResponse',"timeOut");
+
+
+            }
+
+        }
+
+        function checkSecond(sec) {
+            if (sec < 10 && sec >= 0) {sec = "0" + sec};
+            if (sec < 0) {sec = "59"};
+            return sec;
+        }
+
+
+
+var i=0;
+        function SendResp(){
+             if((document.getElementById('timer').innerHTML.toString().localeCompare("time out")==-1)&&(BUZ==true)&&(!(document.getElementById('PseudoU').innerHTML.toString().localeCompare(selectedUser)))){
+               // i++;
+                socket.emit('CheckResp',document.getElementById('PseudoU').innerHTML.toString(),document.getElementById('answerU').value,i=i+1);
+                document.getElementById('answerU').value='';
+                document.getElementById('timer').innerHTML ='';
+            }
+        }
+
+        function lireq() {
+            setTimeout(responsiveVoice.speak(question,"French Female"),15000);
+        }
+
+</script>
+  <div id="footer">
+    Made with <span class="love">&#9829;</span> by Sayef Eddine HASSNAOUI & Radhouen BEL HAJ ALAYA
+
+  </div>
+  </body>
+</html>

@@ -1,0 +1,344 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('projetnode:server');
+var http = require('http');
+
+
+
+
+
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '8090');
+app.set('port', port);
+
+
+
+var fs = require('fs');
+// function
+function get_line(filename, callback) {
+    var data = fs.readFileSync(filename, 'utf8');
+    var lines = data.split("\n");
+    callback(null, lines[(Math.floor(Math.random() * lines.length) + 1)-1]);
+}
+
+
+/**
+get_line('Questions.txt', function(err, line){
+    console.log('The line: ' + line);
+    console.log('Question = '+ line.substring(0, line.indexOf("|R=")));
+    console.log('Response = '+ line.substring(line.indexOf("|R=")+3));
+})
+
+ */
+
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+
+
+
+
+var NombreConnecte=0;
+var pseudo= [];
+//
+var data = fs.readFileSync('Config.txt', 'utf8');
+var lines = data.split("\n");
+var Maxscore=lines[0];
+var Number_of_questions=lines[1];
+var QuestionTimer=lines[2];
+var ComptBuzzer=0;
+
+
+var question="";
+var reponse="";
+var scoreP=[];
+// noinspection Annotator
+var verifferst=true;
+
+var io = require('socket.io').listen(server);
+    io.on('connection', function(socket){
+        socket.on('disconnect',function ()
+          {})
+
+    socket.on('ClientConnected',function(data, callback)
+    {
+        if (pseudo.indexOf(data)!= -1)
+        {
+            callback(false);
+        }
+        else
+        {
+            callback(true);
+            socket.pseudo = data;
+            pseudo.push(socket.pseudo);
+            scoreP.push(0);
+            socket.emit('pseudo',pseudo);
+
+            // remplir les pseudo dans un tableau
+
+            NombreConnecte=NombreConnecte+1;
+            console.log(NombreConnecte);
+            if (NombreConnecte==4)
+            {
+                console.log("on a 4 joueurs connecté");
+                NombreConnecte=0;
+                io.emit('GoOn',true);
+                MainU_interaction();
+
+            }
+            else if (NombreConnecte<4)
+            {
+
+                console.log("page d'attente");
+            }
+
+        }
+
+
+    });
+        socket.on('BuzzerClickedTe3',function (msg) {
+            console.log("BuzzerClickedTe3");
+            ComptBuzzer++;
+        })
+
+        socket.on('hetq',function (msg) {
+            console.log("Another question",msg);
+        })
+
+
+
+        socket.on('BuzzerClickedTe3',function (tim,Psu) {
+            //console.log(tim+Psu);
+            if (verifferst){
+                io.emit('UserSelected',Psu);
+            }
+
+
+        socket.on('NoResponse',function (v) {
+            console.log(''+v);
+
+            //m3adech ne9bel els réponse
+            // notice: lazem narje3 n7elha k bech neb3edh question
+            verifferst=false;
+            // Send new question (badel champ question w timerSet ;p )
+                ChangeQuestion();
+                console.log(''+question);
+            io.emit('Ques',question);
+            verifferst=true;
+        })
+
+var sum=1;
+
+        socket.on('CheckResp',function (p,r,i) {
+
+            //m3adech ne9bel els réponse
+            // notice: lazem narje3 n7elha k bech neb3edh question
+            //verifferst=false;
+
+           // console.log(p+"------"+r);
+
+            if (sum==i)
+            {
+            if ((similarity(r,reponse)>0.7)){
+
+                //Correct Answer
+
+                sum++;
+               scoreP[pseudo.indexOf(p)]=scoreP[pseudo.indexOf(p)]+10;
+
+                //console.log('score de '+p+' ='+scoreP[pseudo.indexOf(p)]);
+
+                io.emit('ScoreUP',p,scoreP[pseudo.indexOf(p)]);
+
+                for(var i= 0; i < 4; i++)
+                {
+                    if(scoreP[i]>=Maxscore){
+                        io.emit('FinJ',p);
+
+                    }
+                }
+                // send question
+                    verifferst=false;
+                    ChangeQuestion();
+                    console.log(''+question);
+                io.emit('Ques',question);
+                verifferst=true;
+                console.log(scoreP[pseudo.indexOf(p)]+"");
+            }
+           else{
+
+                sum++;
+               //wrong Answer
+                verifferst=false;
+                // Send new question (badel champ question w timerSet ;p )
+                    ChangeQuestion();
+                    console.log(''+question);
+
+                io.emit('Ques',question);
+                verifferst=true;
+            }
+
+            }
+
+        })
+
+
+
+        });
+        
+    });
+
+
+function ChangeQuestion(){
+    get_line('Questions.txt', function(err, line){
+        question=line.substring(0, line.indexOf("|R="));
+        reponse=line.substring(line.indexOf("|R=")+3);
+    })
+
+}
+function MainU_interaction(){
+    // get from config file :
+    // - Max Score | QuestionTimer | Number of questions
+    var data = fs.readFileSync('Config.txt', 'utf8');
+    var lines = data.split("\n");
+    var Maxscore=lines[0];
+    var Number_of_questions=lines[1];
+    var QuestionTimer=lines[2];
+
+    // nejbed question w neb3dho lel les clients
+
+
+    ChangeQuestion();
+    // neb3adh question w timer lel les clients el koul
+    io.emit('time',QuestionTimer);
+    io.emit('Ques',question);
+    io.emit('MS',Maxscore);
+    io.emit('NQ',Number_of_questions);
+
+
+   console.log("Maxscore= "+ Maxscore);
+   console.log("QuestionTimer= "+QuestionTimer);
+   console.log("Number_of_questions= "+Number_of_questions);
+}
+function similarity(s1, s2) {
+    var longer = s1;
+    var shorter = s2;
+    if (s1.length < s2.length) {
+        longer = s2;
+        shorter = s1;
+    }
+    var longerLength = longer.length;
+    if (longerLength == 0) {
+        return 1.0;
+    }
+    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+}
+
+function editDistance(s1, s2) {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+
+    var costs = new Array();
+    for (var i = 0; i <= s1.length; i++) {
+        var lastValue = i;
+        for (var j = 0; j <= s2.length; j++) {
+            if (i == 0)
+                costs[j] = j;
+            else {
+                if (j > 0) {
+                    var newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                        newValue = Math.min(Math.min(newValue, lastValue),
+                            costs[j]) + 1;
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
+            }
+        }
+        if (i > 0)
+            costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
+}

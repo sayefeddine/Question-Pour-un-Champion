@@ -1,0 +1,300 @@
+@import "https://fonts.googleapis.com/css?family=Rubik+One";
+body, html {
+
+
+  background: #16141c;
+}
+h1{text-align: center;
+  color: #FFFFFF;}
+h5{text-align: center;
+  color: #FFFFFF;}
+
+#footer{
+  font-size:14px;
+  font-family:"Arial Black";
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+}
+#Main_UI {
+  display: none;
+}
+#BoxDeLogin {
+  border: 2px solid #FFFFFF;
+  width: 500px;
+  height: 220px;
+  padding: 40px;
+  vertical-align:middle;
+  margin: auto;
+  text-align:center;
+}
+
+#winner{
+  border: 2px solid #b73974;
+  background: #FFFFFF;
+  width: 500px;
+  height: 350px;
+  padding: 40px;
+  vertical-align:middle;
+  margin: auto;
+  display: none;
+}
+
+#lost{
+  border: 2px solid #b73974;
+  background: #FFFFFF;
+  width: 500px;
+  height: 350px;
+  padding: 40px;
+  vertical-align:middle;
+  margin: auto;
+  display: none;
+}
+
+#Main_UI {
+  border: 2px solid #b73974;
+  background: #FFFFFF;
+  width: 500px;
+  height: 350px;
+  padding: 40px;
+  vertical-align:middle;
+  margin: auto;
+  -webkit-box-shadow: 2px 2px 14px #666666;
+  -moz-box-shadow: 2px 2px 14px #666666;
+  box-shadow: 2px 2px 14px #666666;
+
+
+
+}
+.inputFORM{
+  width: 60%;
+  box-sizing: border-box;
+  border: 2px solid #a8a6cc;
+  border-radius: 10px;
+  font-size: 16px;
+  background-color: white;
+  background-image: url('user.png');
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  padding: 12px 20px 12px 40px;
+
+}
+
+::-webkit-input-placeholder {
+  text-align: center;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+  text-align: center;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+  text-align: center;
+}
+
+:-ms-input-placeholder {
+  text-align: center;
+}
+
+
+.button {
+  background-color: #FFFFFF;
+  border: 2px solid #a8a6cc;
+  color: #34495e;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 22px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 20px;
+
+}
+.QuestionC{
+  text-align: center;
+  font-size: large;
+  font-family: "Arial Black";
+}
+.buzzer{
+  background-color: #e74c3c;
+  height: 180px;
+  width: 180px;
+  border-radius: 50%;
+
+  font-size: 45px;
+  color: #FFFFFF;
+  font-family: "Arial Black";
+  text-align: center;
+  text-decoration: none;
+  position:relative;
+  left: 30%;
+  cursor:pointer;
+
+}
+.buzzer:hover{
+  background-color: #c0392b;
+}
+
+.timer{
+  border: 2px solid #16141c;
+  text-transform: uppercase;
+  font-size: 20px;
+  font-family: "Arial Black";
+  position: relative;
+  float: left;
+  margin-top: -18%;
+  background-color: #e74c3c;
+  color: #FFFFFF;
+}
+
+.LireSound{
+  background:url(https://d30y9cdsu7xlg0.cloudfront.net/png/8264-200.png) no-repeat;
+  cursor:pointer;
+  width: 200px;
+  height: 100px;
+  border: none;
+}
+
+.ScoreU{
+  border: 2px solid #16141c;
+  text-transform: uppercase;
+  font-size: 20px;
+  font-family: "Arial Black";
+  position: relative;
+  float: right;
+  margin-top: -15%;
+  background-color: #e74c3c;
+  color: #FFFFFF;
+}
+
+.header{
+  width: 60%;
+}
+
+
+.loadingIMG{
+  width: 30%;
+  border-radius: 220px;
+}
+
+
+#LoadingBox {
+  display: none;
+}
+
+.Pseudo{
+  border: 2px dashed #16141c;
+  text-transform: uppercase;
+  font-size: 20px;
+  font-family: "Arial Black";
+  position: relative;
+  text-align: center;
+}
+
+.BtnSubmit{
+
+  -webkit-border-radius: 21;
+  -moz-border-radius: 21;
+  border-radius: 21px;
+  -webkit-box-shadow: 2px 2px 14px #666666;
+  -moz-box-shadow: 2px 2px 14px #666666;
+  box-shadow: 2px 2px 14px #666666;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  background: #e74c3c;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.BtnSubmit:hover {
+  background: #c0392b;
+  text-decoration: none;
+}
+.BtnSubmit:disabled{
+  background: #95a5a6;
+}
+
+.love{
+  display: inline-block;
+  position: relative;
+  top: .2em;
+  font-size: 50px;
+  color: #e74c3c;
+  -webkit-transform: scale(.9);
+  -moz-transform: scale(.9);
+  transform: scale(.9);
+  -webkit-animation: love .5s infinite linear alternate-reverse;
+  -moz-animation: love .5s infinite linear alternate-reverse;
+  animation: love .5s infinite linear alternate-reverse;
+}
+@-webkit-keyframes love {
+  to {-webkit-transform: scale(1.2);}
+}
+@-moz-keyframes love {
+  to {-moz-transform: scale(1.2);}
+}
+@keyframes love {
+  to {transform: scale(1.2);}
+}
+
+
+
+/* Popup Style*/
+
+/* Popup container */
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* The actual popup (appears on top) */
+.popup .popuptext {
+  visibility: hidden;
+  width: 160px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -80px;
+}
+
+/* Popup arrow */
+.popup .popuptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class when clicking on the popup container (hide and show the popup) */
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity:1 ;}
+}
